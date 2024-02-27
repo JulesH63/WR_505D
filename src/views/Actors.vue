@@ -4,21 +4,28 @@ import axios from "axios";
 import ActorCard from "../components/ActorCard.vue";
 
 let data = ref("");
-let token = localStorage.getItem("token");
 
 onMounted(async () => {
-  const response = await axios.get("http://localhost/api/actors?page=1", {
-    headers: {
-      Accept: "application/ld+json",
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  data.value = response.data["hydra:member"];
-  console.log(toRaw(data.value));
+  try {
+    const response = await axios.get(
+      "http://localhost/s5/symfony-s5/public/index.php/api/actors?page=1",
+      {
+        headers: {
+          Accept: "application/json",
+        },
+      }
+    );
+
+    data.value = response.data;
+    console.log(toRaw(data.value));
+  } catch (error) {
+    console.error("Error fetching actor data:", error);
+  }
 });
 </script>
 
 <template>
+  <div class="titre"><h1>ACTORS</h1></div>
   <div class="gallery">
     <ActorCard v-for="actor in data" :key="actor.id" :actor="actor" />
   </div>
@@ -32,7 +39,9 @@ onMounted(async () => {
   margin: 2em auto;
   gap: 2em;
   padding: 2em;
-  max-width: 1200px; 
+  max-width: 1200px;
+  background-color: #f4f4f4;
   border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 </style>
