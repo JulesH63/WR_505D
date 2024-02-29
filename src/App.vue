@@ -8,6 +8,7 @@ import { RouterLink, RouterView, routeLocationKey } from 'vue-router'
     <RouterLink to="/Movies">Movies</RouterLink>
     <RouterLink to="/Actors">Actors</RouterLink>
     <RouterLink to="/Categories">Categories</RouterLink>
+    <RouterLink to="/Login">Contact</RouterLink>
   </header>
 
   <RouterView />

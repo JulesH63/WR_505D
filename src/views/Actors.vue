@@ -5,23 +5,23 @@ import ActorCard from "../components/ActorCard.vue";
 
 let data = ref("");
 
-onMounted(async () => {
-  try {
-    const response = await axios.get(
-      "http://localhost/s5/symfony-s5/public/index.php/api/actors?page=1",
-      {
-        headers: {
-          Accept: "application/json",
-        },
-      }
-    );
+// onMounted(async () => {
+//   try {
+//     const response = await axios.get(
+//       "http://localhost/s5/symfony-s5/public/index.php/api/actors?page=1",
+//       {
+//         headers: {
+//           Accept: "application/json",
+//         },
+//       }
+//     );
 
-    data.value = response.data;
-    console.log(toRaw(data.value));
-  } catch (error) {
-    console.error("Error fetching actor data:", error);
-  }
-});
+//     data.value = response.data;
+//     console.log(toRaw(data.value));
+//   } catch (error) {
+//     console.error("Error fetching actor data:", error);
+//   }
+// });
 </script>
 
 <template>

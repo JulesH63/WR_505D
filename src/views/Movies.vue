@@ -16,21 +16,21 @@ import MovieCard from "../components/MovieCard.vue";
 
 let data = ref([]);
 
-onMounted(async () => {
-  try {
-    const response = await axios.get(
-      "http://localhost/laragon/www/WR_505D/public/index.php/api/movies?page=1",
-      {
-        headers: {
-          Accept: "application/json",
-        },
-      }
-    );
-    data.value = response.data;
-  } catch (error) {
-    console.error("Error fetching movies:", error);
-  }
-});
+// onMounted(async () => {
+//   try {
+//     const response = await axios.get(
+//       "http://localhost/laragon/www/WR_505D/public/index.php/api/movies?page=1",
+//       {
+//         headers: {
+//           Accept: "application/json",
+//         },
+//       }
+//     );
+//     data.value = response.data;
+//   } catch (error) {
+//     console.error("Error fetching movies:", error);
+//   }
+// });
 </script>
 
 <style scoped lang="scss">
