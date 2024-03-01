@@ -1,4 +1,33 @@
 <script setup>
+import { ref } from 'vue'
+import axios from "axios";
+
+const username = ref('')
+const password = ref('')
+let token = ref(localStorage.getItem('token'))
+
+const submitForm = () => {
+  console.log(username.value)
+  axios
+    .post('http://localhost/api/login_check', {
+    email: username.value,
+    password: password.value,
+
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(response => {
+    localStorage.setItem('token', response.data.token);
+    location.href = '/home'
+  })
+    .catch(error => {
+      console.log(username.value)
+    console.log(error)
+  })
+
+}
 </script>
 
 <template>

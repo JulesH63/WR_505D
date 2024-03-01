@@ -1,20 +1,24 @@
 <script setup>
 import { onMounted, ref, toRaw } from "vue";
 import axios from "axios";
-// import CategoryCard from "../components/CustomCategoryCard.vue"; 
+import CategoryCard from "../components/CategoryCard.vue";
+
 let categoryData = ref(""); 
-// onMounted(async () => {
-//   const response = await axios.get(
-//     // "http://localhost/api/category"
-//     {
-//       headers: {
-//         Accept: "application/json",
-//       },
-//     }
-//   );
-//   categoryData.value = response.data; 
-//   console.log(toRaw(categoryData.value));
-// });
+const token = localStorage.getItem('token')
+
+onMounted(async () => {
+  const response = await axios.get(
+    "http://localhost/api/categories?page=1",
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+    }
+  );
+  categoryData.value = response.data; 
+  console.log(toRaw(categoryData.value));
+});
 </script>
 
 <template>

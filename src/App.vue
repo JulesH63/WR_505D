@@ -1,5 +1,10 @@
 <script setup>
 import { RouterLink, RouterView, routeLocationKey } from 'vue-router'
+
+function logout() {
+  localStorage.removeItem('token')
+  location.href = '/login'
+}
 </script>
 
 <template>
@@ -9,6 +14,7 @@ import { RouterLink, RouterView, routeLocationKey } from 'vue-router'
     <RouterLink to="/Actors">Actors</RouterLink>
     <RouterLink to="/Categories">Categories</RouterLink>
     <RouterLink to="/Login">Contact</RouterLink>
+    <button @click="logout">Logout</button>
   </header>
 
   <RouterView />
