@@ -1,56 +1,50 @@
 <script setup>
-defineProps({
-  actor: Object,
+import { defineProps } from "vue";
+import axios from "axios";
+
+const { actor } = defineProps(["actor"]);
+const baseUrl = "http://localhost/api/actors";
+const token = localStorage.getItem("token");
+
+import { onMounted } from "vue";
+
+onMounted(() => {
+  console.log(actor);
 });
+
+async function deleteActor() {
+  const actorId = actor["@id"].split("/").pop();
+  try {
+    const response = await axios.delete(`${baseUrl}/${actorId}`, {
+      headers: {
+        Accept: "application/ld+json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    fetchData();
+  } catch (error) {
+    console.log(error);
+  }
+}
 </script>
 
 <template>
-  <div class="actor-card">
-    <div class="actor-header">
-      <h2>{{ actor.firstName }} {{ actor.lastName }}</h2>
-    </div>
-    <ul class="actor-movies">
-      <li v-for="movie in actor.movies">{{ movie.title }}</li>
-    </ul>
+  <div>
+    <h2>{{ actor.firstName }} {{ actor.lastName }}</h2>
   </div>
 </template>
 
 <style scoped lang="scss">
-.actor-card {
-  background-color: #1b1b1b;
-  color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  max-width: 300px; /* Modification: Augmentation de la largeur maximale */
-  margin: 20px auto;
-  overflow: hidden;
-  .actor-header {
-    background-image: url("path-to-actor-image.jpg"); /* Si vous avez une image pour l'acteur */
-    background-size: cover;
-    background-position: center;
-    height: 150px;
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-    border-radius: 8px 8px 0 0;
-    padding-bottom: 10px;
-    h2 {
-      margin: 0;
-      font-size: 1.2em;
-      background-color: rgba(0, 0, 0, 0.6);
-      padding: 5px 10px;
-      border-radius: 5px;
-    }
-  }
-  .actor-movies {
-    margin-top: 20px;
-    padding: 0;
-    list-style: none;
-    li {
-      margin: 5px 0;
-      font-size: 0.9em;
-    }
-  }
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin: 2em auto;
+  gap: 2em;
+  padding: 2em;
+  max-width: 1200px;
+  background-color: #f4f4f4;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 </style>
