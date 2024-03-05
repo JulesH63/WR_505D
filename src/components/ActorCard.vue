@@ -9,6 +9,7 @@
       </div>
     </div>
     <div class="delete" @click="deleteActor">Supprimer</div>
+    <router-link :to="{ name: 'ActorDetails', params: { id: actor.id }}">Détails</router-link>
   </div>
 </template>
 
