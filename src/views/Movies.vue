@@ -2,26 +2,14 @@
   <div class="container">
     <h1>Liste des films</h1>
     <div class="search-filter-container">
-      <input type="text" v-model="search" placeholder="Rechercher un film..." class="form-control">      <button @click="openAddMovieModal">Ajouter un film</button>
+      <input type="text" v-model="search" placeholder="Rechercher un film..." class="form-control">
+      <button @click="openAddMovieModal">Ajouter un film</button>
+      <AddMovie v-if="isAddingMovie" :isAddingMovie="isAddingMovie" @close="closeAddMovieModal" />    
     </div>
     <div class="row movie-cards-container">
       <div class="col-md-4 mb-3" v-for="movie in filteredMovies" :key="movie.id">
         <movie-card :movie="movie" @delete="deleteMovie(movie.id)"></movie-card>
       </div>
-    </div>
-
-    <div class="modal" :class="{ 'is-active': isAddMovieModalOpen }">
-      <div class="modal-background" @click="closeAddMovieModal"></div>
-      <div class="modal-content">
-        <h2>Ajouter un film</h2>
-        <form @submit.prevent="addMovie">
-          <label for="title">Titre:</label>
-          <input type="text" id="title" v-model="newMovie.title" required>
-          <!-- Ajoutez d'autres champs de formulaire pour d'autres détails du film -->
-          <button type="submit">Ajouter</button>
-        </form>
-      </div>
-      <button class="modal-close is-large" aria-label="close" @click="closeAddMovieModal"></button>
     </div>
   </div>
 </template>
@@ -30,7 +18,8 @@
 import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
-import MovieCard from '../components/MovieCard.vue'; 
+import MovieCard from '../components/MovieCard.vue';
+import AddMovie from '../components/AddMovie.vue';
 
 const router = useRouter();
 const filteredMovies = ref([]);
@@ -181,5 +170,26 @@ h1 {
   cursor: pointer;
   background: transparent;
   border: none;
+}
+
+.modal.is-active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  max-width: 500px; /* Ajoutez une largeur maximale */
+  width: 80%; /* Ajustez la largeur selon vos besoins */
+  max-height: 80vh; /* Ajoutez une hauteur maximale */
+  overflow-y: auto; /* Ajoutez une barre de défilement si nécessaire */
 }
 </style>

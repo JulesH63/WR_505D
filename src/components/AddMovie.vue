@@ -1,6 +1,8 @@
 <template>
-  <div>
+  <div class="add-movie">
     <h1>Edit Movie</h1>
+    <div class="error" v-if="isError">Veuillez remplir tous les champs!</div>
+    <div class="close" @click="close">FERMER</div>
     <form @submit.prevent="editMovie">
       <div>
         <label for="title">Title:</label>
