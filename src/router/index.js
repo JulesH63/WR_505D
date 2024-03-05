@@ -35,7 +35,7 @@ const router = createRouter({
       component: login
     },
     {
-      path: '/movie-details/:id',
+      path: '/movie/:id',
       name: 'MovieDetails',
       component: MovieDetails,
       props: true,

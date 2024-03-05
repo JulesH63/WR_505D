@@ -122,15 +122,13 @@ async function addActor(newActor) {
       },
     });
     console.log(response);
-    // Après l'ajout réussi, récupérez les données des acteurs pour mettre à jour la liste
+    // Mettre à jour les données après l'ajout d'un nouvel acteur
     fetchData();
   } catch (error) {
     console.error("Une erreur s'est produite lors de l'ajout de l'acteur.", error);
   }
 }
 </script>
-
-
 
 
 <style scoped lang="scss">

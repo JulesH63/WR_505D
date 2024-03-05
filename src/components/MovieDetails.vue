@@ -1,79 +1,48 @@
 <template>
-  <div class="container">
+  <div>
     <h1>Détails du film</h1>
     <div v-if="movie">
       <h2>{{ movie.title }}</h2>
-      <p><strong>Date de sortie:</strong> {{ movie.releaseDate }}</p>
-      <p><strong>Durée:</strong> {{ movie.duration }} minutes</p>
-      <p><strong>Catégorie:</strong> {{ movie.category }}</p>
       <p><strong>Description:</strong> {{ movie.description }}</p>
-      <!-- Autres détails du film -->
-      <p><strong>Âge du film:</strong> {{ ageMovie(movie.releaseDate) }}</p>
+      <p><strong>Date de sortie:</strong> {{ convertDate(movie.releaseDate) }}</p>
+      <p><strong>Durée:</strong> {{ movie.duration }} minutes</p>
+      <p v-if="movie.averageRating"><strong>Note moyenne:</strong> {{ movie.averageRating }}</p>
     </div>
     <div v-else>
-      <p>Chargement des détails du film...</p>
+      <p>Aucun film sélectionné.</p>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 
-const route = useRoute();
-const movieId = route.params.id;
+const router = useRouter();
 const movie = ref(null);
 
-// Appel à une fonction pour récupérer les détails du film lors de la création du composant
-onMounted(async () => {
-  // Exemple de fonction pour récupérer les détails du film
-  movie.value = await fetchMovieDetails(movieId);
-});
-
-async function fetchMovieDetails(id) {
+// Fonction pour récupérer le film depuis l'API
+async function getMovie(movieId) {
   try {
-    const response = await fetch(`http://localhost/api/movies/${id}`);
+    const response = await fetch(`http://localhost/api/movies/${movieId}`);
     const data = await response.json();
-    return data;
+    movie.value = data;
   } catch (error) {
-    console.error('Error fetching movie details:', error);
+    console.error('Erreur lors de la récupération du film :', error);
   }
 }
 
-function ageMovie(date) {
-  // Calculer l'âge du film
-  const releaseYear = new Date(date).getFullYear();
-  const currentYear = new Date().getFullYear();
-  return currentYear - releaseYear;
+// Récupérer l'ID du film à partir des paramètres de l'URL
+const movieId = router.currentRoute.value.params.id;
+
+// Charger le film lorsque le composant est monté
+onMounted(async () => {
+  await getMovie(movieId);
+});
+
+// Fonction pour convertir la date au format souhaité
+function convertDate(date) {
+  const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+  return new Date(date).toLocaleDateString('fr-FR', options);
 }
 </script>
-  
-<style scoped>
-.container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-.movie-details {
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.detail-row {
-  margin-bottom: 10px;
-}
-
-.detail-label {
-  font-weight: bold;
-  margin-right: 10px;
-}
-
-.detail-value {
-  color: #333;
-}
-
-</style>
-  

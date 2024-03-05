@@ -1,30 +1,47 @@
 <template>
   <div class="container">
     <h1>Liste des films</h1>
-    <div class="search-filter-container">
-      <input type="text" v-model="search" placeholder="Rechercher un film..." @keyup.enter="searchMovie" class="form-control">
-      <button class="btn btn-primary" @click="searchMovie">Rechercher</button>
-      <input type="number" v-model="rating" placeholder="Note minimum" class="form-control">
-      <button class="btn btn-primary" @click="searchByRating">Filtrer par note</button>
-      <router-link to="/add-movie" class="btn btn-primary">Ajouter un film</router-link>
-    </div>
+      <div class="search-filter-container">
+    <input type="text" v-model="search" placeholder="Rechercher un film..." class="form-control">
+    <button class="btn btn-primary" @click="searchMovie(search)">Rechercher</button>
+    <button @click="openAddMovieModal">Ajouter un film</button>
+  </div>
     <div class="row movie-cards-container">
       <div class="col-md-4 mb-3" v-for="movie in movies" :key="movie.id">
         <movie-card :movie="movie" @delete="deleteMovie(movie.id)"></movie-card>
       </div>
     </div>
+
+    <!-- Modal pour ajouter un film -->
+    <div class="modal" :class="{ 'is-active': isAddMovieModalOpen }">
+      <div class="modal-background" @click="closeAddMovieModal"></div>
+      <div class="modal-content">
+        <!-- Formulaire pour ajouter un film -->
+        <h2>Ajouter un film</h2>
+        <form @submit.prevent="addMovie">
+          <label for="title">Titre:</label>
+          <input type="text" id="title" v-model="newMovie.title" required>
+          <!-- Ajoutez d'autres champs de formulaire pour d'autres détails du film -->
+          <button type="submit">Ajouter</button>
+        </form>
+      </div>
+      <button class="modal-close is-large" aria-label="close" @click="closeAddMovieModal"></button>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import axios from 'axios';
 import MovieCard from '../components/MovieCard.vue'; 
 
 const router = useRouter();
-let movies = ref([]);
-let search = ref('');
-let rating = ref('');
+const filteredMovies = ref([]);
+const movies = ref([]);
+const search = ref('');
+const isAddMovieModalOpen = ref(false);
+const newMovie = ref({ title: '', categoryId: '', description: '', releaseDate: '', duration: '' });
 
 const token = localStorage.getItem('token');
 const API_URL = 'http://localhost/api/movies';
@@ -39,42 +56,38 @@ onMounted(async () => {
 
 async function getMovies() {
   try {
-    const response = await fetch(API_URL);
-    const data = await response.json();
-    movies.value = data['hydra:member'];
+    console.log('Fetching movies...');
+    const response = await axios.get(API_URL);
+    movies.value = response.data['hydra:member'];
+    console.log('Movies fetched:', movies.value);
   } catch (error) {
     console.error('Error fetching movies:', error);
   }
 }
 
-async function searchMovie() {
-  try {
-    const response = await fetch(`${API_URL}?search=${search}`);
-    const data = await response.json();
-    movies.value = data['hydra:member'];
-  } catch (error) {
-    console.error('Error searching movies:', error);
-  }
+watch(search, (newValue, oldValue) => {
+  console.log('Updating search query:', newValue);
+  searchMovie(newValue);
+});
+
+const searchMovie = (searchTerm) => {
+  // Filtrer les films en fonction du terme de recherche
+  filteredMovies.value = movies.value.filter(movie => {
+    return movie.title.toLowerCase().includes(searchTerm.toLowerCase());
+  });
+};
+
+function openAddMovieModal() {
+  isAddMovieModalOpen.value = true;
 }
 
-async function searchByRating() {
-  try {
-    const response = await fetch(`${API_URL}?rating=${rating}`);
-    const data = await response.json();
-    movies.value = data['hydra:member'];
-  } catch (error) {
-    console.error('Error filtering movies by rating:', error);
-  }
-}
-
-function addMovie() {
-  router.push('/add-movie');
+function closeAddMovieModal() {
+  isAddMovieModalOpen.value = false;
 }
 
 async function deleteMovie(movieId) {
   try {
-    await fetch(`${API_URL}/${movieId}`, {
-      method: 'DELETE',
+    await axios.delete(`${API_URL}/${movieId}`, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
@@ -85,7 +98,29 @@ async function deleteMovie(movieId) {
     console.error('Error deleting movie:', error);
   }
 }
+
+async function addMovie() {
+  try {
+    await axios.post(API_URL, newMovie.value, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    // Réinitialiser l'objet du nouveau film après l'ajout réussi
+    newMovie.value = { title: '', categoryId: '', description: '', releaseDate: '', duration: '' };
+    await getMovies();
+    isAddMovieModalOpen.value = false; // Fermer la modal après avoir ajouté le film
+  } catch (error) {
+    console.error('Error adding movie:', error);
+  }
+}
+
+function updateSearch(value) {
+  search.value = value;
+}
 </script>
+
 
 <style scoped>
 .container {
@@ -116,5 +151,40 @@ h1 {
 
 .mb-3 {
   margin-bottom: 15px;
+}
+
+/* Styles pour la modal */
+.modal {
+  display: none;
+}
+
+.modal.is-active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+}
+
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
 }
 </style>

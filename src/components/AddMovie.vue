@@ -1,121 +1,172 @@
 <template>
-  <div class="container">
-    <h2>Ajouter un film</h2>
-    <form @submit.prevent="createMovie">
-      <div class="form-group">
-        <label for="title">Titre du film:</label>
-        <input type="text" class="form-control" id="title" v-model="movieTitle" required>
+  <div>
+    <h1>Edit Movie</h1>
+    <form @submit.prevent="editMovie">
+      <div>
+        <label for="title">Title:</label>
+        <input type="text" id="title" v-model="formData.title" required>
       </div>
-      <!-- Autres champs du formulaire d'ajout de film -->
-      <button type="submit" class="btn btn-primary">Ajouter</button>
+      <div>
+        <label for="categoryId">Category:</label>
+        <select id="categoryId" v-model="formData.categoryId" required>
+          <option value="" disabled>Select Category</option>
+          <option v-for="category in categories" :key="category.id" :value="category.id">{{ category.name }}</option>
+        </select>
+      </div>
+      <div>
+        <label for="description">Description:</label>
+        <textarea id="description" v-model="formData.description" required></textarea>
+      </div>
+      <div>
+        <label for="releaseDate">Release Date:</label>
+        <input type="date" id="releaseDate" v-model="formData.releaseDate" required>
+      </div>
+      <div>
+        <label for="duration">Duration (minutes):</label>
+        <input type="number" id="duration" v-model="formData.duration" required>
+      </div>
+      <button type="submit">Edit Movie</button>
     </form>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
 
-const router = useRouter();
-let movieTitle = ref('');
-let movieDescription = ref('');
-let movieReleaseDate = ref('');
-let movieDuration = ref(0);
-let movieCategory = ref('');
-let movieActors = ref([]);
-
-let categories = ref([]);
-let actors = ref([]);
-
-const API_URL = import.meta.env.VITE_SERVER_API_URL;
-const token = localStorage.getItem('token');
-if (!token) {
-  router.push('/login');
-}
-const role = localStorage.getItem('role');
-if (role !== 'ROLE_ADMIN') {
-  router.push('/');
-}
-
-const today = new Date().toISOString().split('T')[0];
-
-onMounted(async () => {
-  await getCategories();
-  await getActors();
+const formData = ref({
+  title: '',
+  categoryId: '',
+  description: '',
+  releaseDate: '',
+  duration: ''
 });
 
-async function getCategories() {
+const categories = ref([]); // Placeholder for categories data
+const movieId = ref(''); // Placeholder for movie ID
+
+// Function to fetch categories data
+const fetchCategories = async () => {
   try {
-    const response = await fetch(`${API_URL}/categories`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-    if (response.ok) {
-      categories.value = await response.json();
-    } else {
-      console.error('Erreur lors de la récupération des catégories');
-    }
+    const response = await axios.get(`${baseUrlApi}/categories`);
+    categories.value = response.data;
   } catch (error) {
-    console.error('Erreur lors de la récupération des catégories:', error);
+    console.error(error);
   }
-}
+};
 
-async function getActors() {
+// Call the fetchCategories function when the component is mounted
+onMounted(fetchCategories);
+
+// Function to fetch movie details
+const fetchMovieDetails = async () => {
   try {
-    const response = await fetch(`${API_URL}/actors`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-    if (response.ok) {
-      actors.value = await response.json();
-    } else {
-      console.error('Erreur lors de la récupération des acteurs');
-    }
+    const response = await axios.get(`${baseUrlApi}/movies/${movieId.value}`);
+    const movieData = response.data;
+    formData.value = {
+      title: movieData.title,
+      categoryId: movieData.category_id,
+      description: movieData.description,
+      releaseDate: movieData.release_date,
+      duration: movieData.duration
+    };
   } catch (error) {
-    console.error('Erreur lors de la récupération des acteurs:', error);
+    console.error('Error fetching movie details:', error);
   }
-}
+};
 
-async function createMedia() {
-  // Créer le média pour le film
-  // Vous devez implémenter cette fonction en fonction de vos besoins
-}
+// Call the fetchMovieDetails function when the component is mounted
+onMounted(fetchMovieDetails);
 
-async function createMovie() {
-  try {
-    const response = await fetch(`${API_URL}/movies`, {
-      method: 'POST',
+// Function to edit a movie
+const editMovie = () => {
+  axios.put(`${baseUrlApi}/movies/${movieId.value}`, formData.value, {
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        title: movieTitle.value,
-        description: movieDescription.value,
-        releaseDate: movieReleaseDate.value,
-        duration: movieDuration.value,
-        category: movieCategory.value,
-        actors: movieActors.value,
-      })
+    })
+    .then(response => {
+      // Handle successful movie edit
+      console.log('Movie edited successfully:', response.data);
+    })
+    .catch(error => {
+      console.error('Error editing movie:', error);
     });
-    if (response.ok) {
-      console.log('Film ajouté avec succès');
-      // Rediriger vers une autre page ou effectuer une action supplémentaire
-    } else {
-      console.error('Erreur lors de l\'ajout du film');
-    }
-  } catch (error) {
-    console.error('Erreur lors de l\'ajout du film:', error);
-  }
-}
-
-const uploadFile = (event) => {
-  // Gérer le téléchargement du fichier
 };
 </script>
 
 <style scoped>
+.title {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 20px;
+}
 
+.search-container {
+  margin-bottom: 20px;
+}
+
+.add-movie-container {
+  margin-bottom: 20px;
+}
+
+.add-movie {
+  padding: 10px 20px;
+  background-color: #55868C;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.add-movie:hover {
+  background-color: #3a5f63;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.page {
+  width: 40px;
+  height: 40px;
+  background-color: #55868C;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  cursor: pointer;
+  margin-right: 5px;
+  transition: background-color 0.3s;
+}
+
+.page:hover,
+.page.active-page {
+  background-color: #3a5f63;
+}
+
+.movie-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.no-results {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 30vh;
+}
 </style>

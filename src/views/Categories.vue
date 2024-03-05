@@ -12,7 +12,7 @@
     <!-- Ajout du bouton d'ajout de catégorie -->
     <button @click="openAddCategoryModal">Ajouter une catégorie</button>
     <!-- Ajout du composant AddCategoryForm avec la liaison des événements -->
-    <AddCategoryForm v-if="isAddingCategory" :isAddingCategory="isAddingCategory" @close="closeAddCategoryModal" />
+    <AddCategory v-if="isAddingCategory" :isAddingCategory="isAddingCategory" @close="closeAddCategoryModal" />
   </div>
 </template>
 
@@ -20,7 +20,7 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import CategoryCard from '@/components/CategoryCard.vue';
-import AddCategoryForm from '@/components/AddCategory.vue';
+import AddCategory from '@/components/AddCategory.vue';
 
 const categories = ref([]);
 const searchQuery = ref('');

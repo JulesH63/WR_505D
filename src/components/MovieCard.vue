@@ -1,5 +1,5 @@
 <template>
-  <div v-if="movie" class="movie-card">
+  <div v-if="movie" class="movie-card" @click="navigateToMovieDetails">
     <h2>{{ movie.title }}</h2>
     <p><strong>Date de sortie:</strong> {{ convertDate(movie.releaseDate) }}</p>
     <p v-if="movie.averageRating"><strong>Note moyenne:</strong> {{ movie.averageRating }}</p>
@@ -15,6 +15,7 @@ import { ref, defineProps } from 'vue';
 import { useRouter } from 'vue-router';
 
 const props = defineProps(['movie']);
+
 const router = useRouter();
 
 const token = localStorage.getItem('token');
@@ -41,6 +42,11 @@ async function deleteMovie(movieId) {
   }
 }
 
+// Fonction pour naviguer vers les détails du film
+function navigateToMovieDetails() {
+  router.push(`/movie/${props.movie.id}`);
+}
+
 // Fonction pour convertir la date au format souhaité
 function convertDate(date, format = 'DD/MM/YYYY') {
   const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
@@ -56,6 +62,7 @@ function convertDate(date, format = 'DD/MM/YYYY') {
   border-radius: 5px;
   padding: 20px;
   margin-bottom: 20px;
+  cursor: pointer; /* Ajout du curseur pointer pour indiquer que la carte est cliquable */
 }
 
 .movie-card h2 {
