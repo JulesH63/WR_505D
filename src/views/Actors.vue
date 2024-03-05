@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- Ajout du formulaire d'édition de l'acteur -->
     <ActorEdit :actor="selectedActor" v-if="isEditing" @close="closeEditForm" />
 
     <AddActorForm :fetchData="fetchData" @close="toggleAddActor" v-if="isAddActor" />
@@ -72,10 +71,9 @@ async function fetchData() {
       firstName: actor.firstName,
       lastName: actor.lastName,
     }));
-    console.log(state.data); // Vérifiez les données récupérées dans la console
     state.filteredData = filterActors(state.data, searchQuery.value);
   } catch (error) {
-    console.error("Une erreur s'est produite lors de la récupération des données.", error);
+    console.log(error.response.data)
   }
 }
 
@@ -87,13 +85,11 @@ function toggleAddActor() {
   isAddActor.value = !isAddActor.value;
 }
 
-// Méthode pour ouvrir le formulaire d'édition de l'acteur
 function openEditForm(actor) {
   selectedActor.value = actor;
   isEditing.value = true;
 }
 
-// Méthode pour fermer le formulaire d'édition de l'acteur
 function closeEditForm() {
   selectedActor.value = null;
   isEditing.value = false;
@@ -128,9 +124,9 @@ async function searchActor() {
   gap: 2em;
   padding: 2em;
   max-width: 1200px;
-  background-color: #f4f4f4;
+  background-color: #141414;
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .crud {
@@ -146,7 +142,7 @@ async function searchActor() {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #a76571;
+    background-color: #e50914;
     color: white;
     border-radius: 8px;
     cursor: pointer;
@@ -163,6 +159,13 @@ async function searchActor() {
     border-radius: 5px;
     border: 1px solid #ccc;
     font-size: 1rem;
+    background-color: #303030;
+    color: white;
+    outline: none;
+
+    &::placeholder {
+      color: #9b9b9b;
+    }
   }
 }
 </style>

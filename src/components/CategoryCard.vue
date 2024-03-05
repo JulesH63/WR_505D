@@ -52,6 +52,7 @@ const deleteCategory = async () => {
   overflow: hidden;
   margin: 1em;
   height: fit-content;
+  border: 1px solid white; /* Ajout d'un bord blanc solide */
 }
 
 .category-content {

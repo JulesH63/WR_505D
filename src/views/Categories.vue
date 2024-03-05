@@ -1,102 +1,218 @@
 <template>
-  <div class="categories">
-    <div class="title">
-      <h1>Our Categories</h1>
+  <div class="container">
+    <h1>Liste des catégories</h1>
+    <div class="search-filter-container">
+      <input type="text" v-model="search" placeholder="Rechercher une catégorie..." class="form-control">
+      <button @click="openAddCategoryModal">Ajouter une catégorie</button>
     </div>
-    <div class="search-bar-container">
-      <input type="text" placeholder="Search category..." v-model="searchQuery" @input="searchCategory" />
+    <div class="row category-cards-container">
+      <div class="col-md-4 mb-3" v-for="category in filteredCategories" :key="category.id">
+        <category-card :category="category" @delete="deleteCategory(category.id)" @edit="openEditCategoryModal(category.id)"></category-card>
+      </div>
     </div>
-    <div class="category-gallery">
-      <CategoryCard v-for="category in filteredCategories" :key="category.id" :category="category" />
-    </div>
-    <!-- Ajout du bouton d'ajout de catégorie -->
-    <button @click="openAddCategoryModal">Ajouter une catégorie</button>
-    <!-- Ajout du composant AddCategoryForm avec la liaison des événements -->
-    <AddCategory v-if="isAddingCategory" :isAddingCategory="isAddingCategory" @close="closeAddCategoryModal" />
+    <AddCategory v-if="isAddingCategory" @close="closeAddCategoryModal" />
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue';
+<script>
+import { onMounted, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import axios from 'axios';
-import CategoryCard from '@/components/CategoryCard.vue';
-import AddCategory from '@/components/AddCategory.vue';
+import CategoryCard from '../components/CategoryCard.vue';
+import AddCategory from '../components/AddCategory.vue';
 
-const categories = ref([]);
-const searchQuery = ref('');
-const isAddingCategory = ref(false); // Déclaration de la variable pour le contrôle de la modale
+export default {
+  components: {
+    CategoryCard,
+    AddCategory
+  },
+  setup() {
+    const router = useRouter();
+    const filteredCategories = ref([]);
+    const categories = ref([]);
+    const search = ref('');
+    const isAddingCategory = ref(false);
+    const token = localStorage.getItem('token');
+    const API_URL = 'http://localhost/api/categories';
 
-onMounted(async () => {
-  await fetchData();
-});
+    if (!token) {
+      router.push('/login');
+    }
 
-const fetchData = async () => {
-  try {
-    const response = await axios.get('http://localhost/api/categories?page=1', {
-      headers: {
-        Accept: 'application/ld+json',
-      },
+    onMounted(async () => {
+      await getCategories();
     });
-    categories.value = response.data['hydra:member'];
-    searchCategory();
-  } catch (error) {
-    console.error("An error occurred while fetching categories:", error);
+
+    async function getCategories() {
+      try {
+        const response = await axios.get(API_URL);
+        categories.value = response.data['hydra:member'];
+        searchCategory();
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    }
+
+    watch(search, (newValue, oldValue) => {
+      searchCategory();
+    });
+
+    const searchCategory = () => {
+      filteredCategories.value = categories.value.filter(category => {
+        return category.name.toLowerCase().includes(search.value.toLowerCase());
+      });
+    };
+
+    function openAddCategoryModal() {
+      isAddingCategory.value = true;
+    }
+
+    function closeAddCategoryModal() {
+      isAddingCategory.value = false;
+    }
+
+    async function deleteCategory(categoryId) {
+      try {
+        await axios.delete(`${API_URL}/${categoryId}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        await getCategories();
+      } catch (error) {
+        console.error('Error deleting category:', error);
+      }
+    }
+
+    function openEditCategoryModal(categoryId) {
+      // Naviguer vers AddCategory avec l'ID de la catégorie à éditer dans l'URL
+      router.push({ name: 'EditCategory', params: { id: categoryId } });
+    }
+
+    // Retournez les méthodes et données utilisées dans le template
+    return {
+      filteredCategories,
+      search,
+      isAddingCategory,
+      openAddCategoryModal,
+      closeAddCategoryModal,
+      deleteCategory,
+      openEditCategoryModal
+    };
   }
-};
-
-const filteredCategories = ref([]);
-
-const searchCategory = () => {
-  filteredCategories.value = categories.value.filter(category => {
-    return category.name.toLowerCase().includes(searchQuery.value.toLowerCase());
-  });
-};
-
-// Fonction pour ouvrir la modale d'ajout de catégorie
-const openAddCategoryModal = () => {
-  isAddingCategory.value = true;
-};
-
-// Fonction pour fermer la modale d'ajout de catégorie
-const closeAddCategoryModal = () => {
-  isAddingCategory.value = false;
 };
 </script>
 
 <style scoped>
-.category-gallery {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  margin: 2em auto;
-  gap: 2em;
-  padding: 2em;
-  max-width: 1200px;
-  background-color: #f0f0f0; 
-  border-radius: 16px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1); 
-}
-
-.title {
-  text-align: center;
+.container {
+  background-color: #141414;
+  color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
 }
 
-h1 {
-  font-size: 2em; 
-  color: #333;
+.container h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
 }
 
-.search-bar-container {
-  margin: 1em auto;
-  text-align: center;
-
-  input {
-    width: 300px;
-    padding: 0.5em;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    font-size: 1rem;
-  }
+.search-filter-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
 }
+
+.form-control {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  margin-right: 10px;
+  background-color: #fff;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #ff0000;
+}
+
+button {
+  background-color: #e50914;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #ff0000;
+}
+
+.form-control {
+  margin-right: 10px;
+}
+
+.category-cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-gap: 20px;
+}
+
+.mb-3 {
+  margin-bottom: 15px;
+}
+
+.add-category {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #141414;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+}
+
+.add-category:focus {
+  outline: none;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  color: #fff;
+}
+
+/* Styles pour les éléments des catégories */
+
+.category-card {
+  background-color: #141414;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.category-card-content {
+  padding: 15px;
+}
+
+.category-name {
+  margin: 0;
+  font-size: 16px;
+  color: #fff;
+}
+
+.category-description {
+  font-size: 14px;
+  color: #ccc;
+  margin-top: 5px;
+}
+
 </style>

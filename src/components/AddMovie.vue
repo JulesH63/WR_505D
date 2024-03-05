@@ -1,8 +1,8 @@
 <template>
-  <div class="add-movie">
+  <div v-if="isAddingMovie" class="add-movie">
+    <div class="close" @click="closeAddMovieModal">FERMER</div>
     <h1>Edit Movie</h1>
     <div class="error" v-if="isError">Veuillez remplir tous les champs!</div>
-    <div class="close" @click="close">FERMER</div>
     <form @submit.prevent="editMovie">
       <div>
         <label for="title">Title:</label>
@@ -36,6 +36,8 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 
+const baseUrlApi = 'http://localhost/api'; 
+const token = localStorage.getItem('token') || 'your-default-token';
 const formData = ref({
   title: '',
   categoryId: '',
@@ -43,17 +45,21 @@ const formData = ref({
   releaseDate: '',
   duration: ''
 });
-
 const categories = ref([]); // Placeholder for categories data
 const movieId = ref(''); // Placeholder for movie ID
+const isAddingMovie = ref(true); // Placeholder for showing the AddMovie component
+const isError = ref(false);
+
+
 
 // Function to fetch categories data
 const fetchCategories = async () => {
   try {
     const response = await axios.get(`${baseUrlApi}/categories`);
     categories.value = response.data;
+    console.log('Categories:', categories.value);
   } catch (error) {
-    console.error(error);
+    console.error('Error fetching categories:', error);
   }
 };
 
@@ -63,8 +69,10 @@ onMounted(fetchCategories);
 // Function to fetch movie details
 const fetchMovieDetails = async () => {
   try {
+    console.log('Fetching movie details...');
     const response = await axios.get(`${baseUrlApi}/movies/${movieId.value}`);
     const movieData = response.data;
+    console.log('Movie details:', movieData);
     formData.value = {
       title: movieData.title,
       categoryId: movieData.category_id,
@@ -74,6 +82,7 @@ const fetchMovieDetails = async () => {
     };
   } catch (error) {
     console.error('Error fetching movie details:', error);
+    isError.value = true;
   }
 };
 
@@ -92,10 +101,16 @@ const editMovie = () => {
     .then(response => {
       // Handle successful movie edit
       console.log('Movie edited successfully:', response.data);
+      // Close the modal or navigate to another page
     })
     .catch(error => {
       console.error('Error editing movie:', error);
+      // Handle error, show error message, etc.
     });
+};
+
+const closeAddMovieModal = () => {
+  isAddingMovie.value = false;
 };
 </script>
 

@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <h1>Détails du film</h1>
-    <div v-if="movie">
+  <div class="container">
+    <div v-if="movie" class="movie-details">
+      <h1>Détails du film</h1>
       <h2>{{ movie.title }}</h2>
       <p><strong>Description:</strong> {{ movie.description }}</p>
       <p><strong>Date de sortie:</strong> {{ convertDate(movie.releaseDate) }}</p>
@@ -9,7 +9,7 @@
       <p v-if="movie.averageRating"><strong>Note moyenne:</strong> {{ movie.averageRating }}</p>
     </div>
     <div v-else>
-      <p>Aucun film sélectionné.</p>
+      <p class="no-movie">Aucun film sélectionné.</p>
     </div>
   </div>
 </template>
@@ -46,3 +46,38 @@ function convertDate(date) {
   return new Date(date).toLocaleDateString('fr-FR', options);
 }
 </script>
+
+<style scoped>
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-family: 'Arial', sans-serif; /* Changer la police ici */
+  color: #000; /* Changer la couleur du texte ici */
+}
+
+.movie-details {
+  max-width: 600px;
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.9); /* Fond blanc transparent */
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+h1 {
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+h2 {
+  margin-bottom: 10px;
+  font-size: 20px;
+}
+
+p {
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+</style>

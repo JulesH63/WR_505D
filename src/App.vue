@@ -33,11 +33,15 @@ function logout() {
 
 .menu-header {
   color: #fff;
-  padding: 10px 20px;
+  padding: 20px 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  font-family: 'Arial', sans-serif;
+  font-weight: bold;
+  font-size: 20px;
 }
+
 
 .menu-links {
   display: flex;

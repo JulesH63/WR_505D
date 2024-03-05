@@ -32,12 +32,14 @@ const deleteActor = async () => {
 <style scoped>
 .actor-card {
   width: 15em;
-  background-color: #f5f5f5;
+  background-color: #141414;
+  color: #fff;
   border-radius: 10px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   margin: 1em;
   height: fit-content;
+  border: 1px solid white;
 }
 
 .actor-content {
@@ -59,7 +61,7 @@ const deleteActor = async () => {
 }
 
 .actor-nationality {
-  color: #666;
+  color: #ccc;
   margin-bottom: 1em;
 }
 
@@ -69,18 +71,18 @@ const deleteActor = async () => {
 }
 
 .movie-link {
-  color: #007bff;
+  color: #e50914;
   text-decoration: none;
   margin-bottom: 0.5em;
   transition: color 0.3s ease;
 }
 
 .movie-link:hover {
-  color: #0056b3;
+  color: #ff0000;
 }
 
 .delete {
-  background-color: #d9534f;
+  background-color: #e50914;
   color: white;
   text-align: center;
   padding: 0.5em 0;
@@ -88,6 +90,6 @@ const deleteActor = async () => {
 }
 
 .delete:hover {
-  background-color: #c9302c;
+  background-color: #ff0000;
 }
 </style>
