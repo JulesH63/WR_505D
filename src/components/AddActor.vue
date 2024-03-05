@@ -1,7 +1,7 @@
 <template>
   <div class="add-actor">
     <p>Ajouter un acteur</p>
-    <div class="error" v-if="isError"> Veuillez remplir tous les champs! </div>
+    <div class="error" v-if="isError">Veuillez remplir tous les champs!</div>
     <div class="close" @click="close">FERMER</div>
     <form @submit.prevent="postActor">
       <div class="form-group">
@@ -13,7 +13,7 @@
         <input type="text" id="lastName" v-model="lastName" />
       </div>
       <div class="form-group">
-        <label for="nationality">Catégorie</label>
+        <label for="nationality">Nationalité</label>
         <select id="nationality" v-model="selectedNationality">
           <option value="" disabled>--Nationalité--</option>
           <option v-for="nationality in nationalityList" :key="nationality.idUrl" :value="nationality">
@@ -28,12 +28,10 @@
 </template>
 
 <script setup>
-import { ref, defineProps, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import axios from "axios";
+import { defineEmits } from 'vue';
 
-const { fetchData } = defineProps(["fetchData"]);
-
-const baseUrl = import.meta.env.VITE_BASE_URL;
 const token = localStorage.getItem("token");
 
 const isError = ref(false);
@@ -44,8 +42,13 @@ const selectedNationality = ref("");
 const firstName = ref("");
 const lastName = ref("");
 
+const emit = defineEmits(['close']);
+const close = () => {
+  emit('close', true);
+};
+
 // GET nationalities
-async function getNationalities(url = `${baseUrl}/nationalities`) {
+async function getNationalities(url = `http://localhost/api/nationalities`) {
   try {
     const response = await axios.get(url, {
       headers: {
@@ -78,7 +81,7 @@ async function postActor() {
   };
 
   try {
-    const response = await axios.post(`${baseUrl}/actors`, data, {
+    const response = await axios.post(`http://localhost/api/actors`, data, {
       headers: {
         Accept: "application/ld+json",
         Authorization: `Bearer ${token}`,
@@ -87,16 +90,12 @@ async function postActor() {
     console.log(response);
     close();
     isError.value = false;
-    fetchData();
+    await getNationalities(); // Mettre à jour la liste des nationalités après l'ajout d'un acteur
   } catch (error) {
     console.error("Erreur lors de l'ajout de l'acteur:", error);
     isError.value = true;
   }
 }
-
-const close = () => {
-  // emit("close", true); // uncomment if you want to emit an event to parent component
-};
 
 // Fetch nationalities on component mount
 onMounted(() => {

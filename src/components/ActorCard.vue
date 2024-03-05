@@ -1,50 +1,93 @@
-<script setup>
-import { defineProps } from "vue";
-import axios from "axios";
-
-const { actor } = defineProps(["actor"]);
-const baseUrl = "http://localhost/api/actors";
-const token = localStorage.getItem("token");
-
-import { onMounted } from "vue";
-
-onMounted(() => {
-  console.log(actor);
-});
-
-async function deleteActor() {
-  const actorId = actor["@id"].split("/").pop();
-  try {
-    const response = await axios.delete(`${baseUrl}/${actorId}`, {
-      headers: {
-        Accept: "application/ld+json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    fetchData();
-  } catch (error) {
-    console.log(error);
-  }
-}
-</script>
-
 <template>
-  <div>
-    <h2>{{ actor.firstName }} {{ actor.lastName }}</h2>
+  <div class="actor-card">
+    <div class="actor-content">
+      <div class="actor-header">
+        <h2>{{ actor.firstName }} {{ actor.lastName }}</h2>
+      </div>
+      <div class="actor-details">
+        <p v-if="actor.nationality && actor.nationality.name" class="actor-nationality">{{ actor.nationality.name }}</p>
+      </div>
+    </div>
+    <div class="delete" @click="deleteActor">Supprimer</div>
   </div>
 </template>
 
-<style scoped lang="scss">
-.gallery {
+<script setup>
+import { defineProps } from "vue";
+import axios from 'axios';
+
+const { actor, fetchData } = defineProps(["actor", "fetchData"]);
+
+const deleteActor = async () => {
+  try {
+    const response = await axios.delete(`http://localhost/api/actors/${actor.id}`);
+    console.log(response);
+    fetchData();
+  } catch (error) {
+    console.error("Erreur lors de la suppression de l'acteur:", error);
+  }
+};
+</script>
+
+<style scoped>
+.actor-card {
+  width: 15em;
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin: 1em;
+  height: fit-content;
+}
+
+.actor-content {
+  padding: 1.5em;
+}
+
+.actor-header {
+  text-align: center;
+  margin-bottom: 1em;
+}
+
+.actor-header h2 {
+  font-size: 1.2em;
+  margin: 0;
+}
+
+.actor-details {
+  font-size: 0.9em;
+}
+
+.actor-nationality {
+  color: #666;
+  margin-bottom: 1em;
+}
+
+.actor-movie-list {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  margin: 2em auto;
-  gap: 2em;
-  padding: 2em;
-  max-width: 1200px;
-  background-color: #f4f4f4;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  flex-direction: column;
+}
+
+.movie-link {
+  color: #007bff;
+  text-decoration: none;
+  margin-bottom: 0.5em;
+  transition: color 0.3s ease;
+}
+
+.movie-link:hover {
+  color: #0056b3;
+}
+
+.delete {
+  background-color: #d9534f;
+  color: white;
+  text-align: center;
+  padding: 0.5em 0;
+  cursor: pointer;
+}
+
+.delete:hover {
+  background-color: #c9302c;
 }
 </style>
