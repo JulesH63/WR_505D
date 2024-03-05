@@ -38,7 +38,7 @@ const fetchData = async () => {
       },
     });
     categories.value = response.data['hydra:member'];
-    searchCategory(); // Appeler la fonction de recherche une fois que les catégories sont récupérées
+    searchCategory();
   } catch (error) {
     console.error("An error occurred while fetching categories:", error);
   }

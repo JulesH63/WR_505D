@@ -1,22 +1,18 @@
 <template>
   <div class="container">
     <h1>Liste des films</h1>
-      <div class="search-filter-container">
-    <input type="text" v-model="search" placeholder="Rechercher un film..." class="form-control">
-    <button class="btn btn-primary" @click="searchMovie(search)">Rechercher</button>
-    <button @click="openAddMovieModal">Ajouter un film</button>
-  </div>
+    <div class="search-filter-container">
+      <input type="text" v-model="search" placeholder="Rechercher un film..." class="form-control">      <button @click="openAddMovieModal">Ajouter un film</button>
+    </div>
     <div class="row movie-cards-container">
-      <div class="col-md-4 mb-3" v-for="movie in movies" :key="movie.id">
+      <div class="col-md-4 mb-3" v-for="movie in filteredMovies" :key="movie.id">
         <movie-card :movie="movie" @delete="deleteMovie(movie.id)"></movie-card>
       </div>
     </div>
 
-    <!-- Modal pour ajouter un film -->
     <div class="modal" :class="{ 'is-active': isAddMovieModalOpen }">
       <div class="modal-background" @click="closeAddMovieModal"></div>
       <div class="modal-content">
-        <!-- Formulaire pour ajouter un film -->
         <h2>Ajouter un film</h2>
         <form @submit.prevent="addMovie">
           <label for="title">Titre:</label>
@@ -60,6 +56,7 @@ async function getMovies() {
     const response = await axios.get(API_URL);
     movies.value = response.data['hydra:member'];
     console.log('Movies fetched:', movies.value);
+    searchMovie(); // Appel pour filtrer les films après avoir récupéré les données
   } catch (error) {
     console.error('Error fetching movies:', error);
   }
@@ -67,13 +64,12 @@ async function getMovies() {
 
 watch(search, (newValue, oldValue) => {
   console.log('Updating search query:', newValue);
-  searchMovie(newValue);
+  searchMovie();
 });
 
-const searchMovie = (searchTerm) => {
-  // Filtrer les films en fonction du terme de recherche
+const searchMovie = () => {
   filteredMovies.value = movies.value.filter(movie => {
-    return movie.title.toLowerCase().includes(searchTerm.toLowerCase());
+    return movie.title.toLowerCase().includes(search.value.toLowerCase());
   });
 };
 
@@ -120,7 +116,6 @@ function updateSearch(value) {
   search.value = value;
 }
 </script>
-
 
 <style scoped>
 .container {

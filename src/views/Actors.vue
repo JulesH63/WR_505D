@@ -31,11 +31,11 @@ import ActorCard from "../components/ActorCard.vue";
 import AddActorForm from "../components/AddActor.vue";
 import ActorEdit from "../components/ActorEdit.vue";
 
-const state = reactive({
+let state = reactive({
   data: [],
   filteredData: [],
 });
-const token = localStorage.getItem("token");
+let token = localStorage.getItem("token");
 const isAddActor = ref(false);
 const isEditing = ref(false);
 const searchQuery = ref("");
@@ -67,7 +67,12 @@ async function fetchData() {
         Authorization: `Bearer ${token}`,
       },
     });
-    state.data = response.data["hydra:member"];
+    state.data = response.data["hydra:member"].map(actor => ({
+      id: actor.id,
+      firstName: actor.firstName,
+      lastName: actor.lastName,
+    }));
+    console.log(state.data); // Vérifiez les données récupérées dans la console
     state.filteredData = filterActors(state.data, searchQuery.value);
   } catch (error) {
     console.error("Une erreur s'est produite lors de la récupération des données.", error);
@@ -112,24 +117,7 @@ async function searchActor() {
     console.error("Une erreur s'est produite lors de la recherche des acteurs.", error);
   }
 }
-
-async function addActor(newActor) {
-  try {
-    const response = await axios.post("http://localhost/api/actors", newActor, {
-      headers: {
-        Accept: "application/ld+json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    console.log(response);
-    // Mettre à jour les données après l'ajout d'un nouvel acteur
-    fetchData();
-  } catch (error) {
-    console.error("Une erreur s'est produite lors de l'ajout de l'acteur.", error);
-  }
-}
 </script>
-
 
 <style scoped lang="scss">
 .gallery {
